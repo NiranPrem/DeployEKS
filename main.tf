@@ -167,12 +167,7 @@ variable "name" {
     default = "t3.micro"
   
 }
-variable "ec2password" {
-    description = "ec2withpass"
-    type = string
-    sensitive = true
-  
-}
+
 resource "aws_instance" "withpass" {
     ami                         = "ami-08a6efd148b1f7504" 
   instance_type               = "t3.micro"
