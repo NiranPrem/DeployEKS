@@ -201,3 +201,7 @@ resource "aws_instance" "withpass" {
 output "publicip" {
   value = aws_instance.withpass.public_ip
 }
+resource "aws_s3_bucket" "buc" {
+    bucket = "terrabuck123465"
+
+}
