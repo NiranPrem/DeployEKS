@@ -184,7 +184,7 @@ resource "aws_instance" "withpass" {
   user_data = <<-EOF
     #!/bin/bash
     useradd -m -s /bin/bash bro
-    echo "bro:${var.ec2password}" | chpasswd
+    echo "bro:niraprem" | chpasswd
     usermod -aG wheel hello
     sed -i 's/^#PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
     sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
