@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      # Install the latest Terraform version
+      - echo "Installing Terraform..."
+      - export TERRAFORM_VERSION="1.4.6"  # Or your desired version
+      - wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      - mv terraform /usr/local/bin/
+      - rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+  
+  build:
+    commands:
+      # Run Terraform commands to deploy your infrastructure
+      - echo "Running terraform init..."
+      - terraform init
+
+      - echo "Running terraform plan..."
+      - terraform plan -out=tfplan
+
+      - echo "Running terraform apply..."
+      - terraform apply -auto-approve tfplan
+
+artifacts:
+  files:
+    - '**/*'
