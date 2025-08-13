@@ -1,6 +1,13 @@
 pipeline {
     agent { label 'ubuntu' }
 
+    environment {
+        IMAGE_NAME = "myjenkinsapp:latest"
+        CONTAINER_NAME = "myjenkinscontainer"
+        HOST_PORT = "80"        // Change to 8080 if needed
+        CONTAINER_PORT = "80"
+    }
+
     stages {
         stage('Verify Docker Access') {
             steps {
@@ -13,6 +20,20 @@ pipeline {
             }
         }
 
+        stage('Stop Conflicting Services') {
+            steps {
+                script {
+                    // Stop Apache if running on port 80
+                    sh """
+                    if ss -tuln | grep -q ':${HOST_PORT} '; then
+                        echo 'Port ${HOST_PORT} is in use. Stopping Apache...'
+                        sudo systemctl stop apache2 || true
+                    fi
+                    """
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/NiranPrem/DeployEKS.git'
@@ -21,22 +42,22 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t myjenkinsapp:latest .'
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
 
         stage('Run Container') {
             steps {
-                sh '''
-                    docker rm -f myjenkinscontainer || true
-                    docker run -d --name myjenkinscontainer -p 8080:80 myjenkinsapp:latest
-                '''
+                sh """
+                    docker rm -f ${CONTAINER_NAME} || true
+                    docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:${CONTAINER_PORT} ${IMAGE_NAME}
+                """
             }
         }
 
         stage('Test Application') {
             steps {
-                sh 'curl -f http://localhost:8080 || exit 1'
+                sh "curl -f http://localhost:${HOST_PORT} || exit 1"
             }
         }
     }
@@ -44,8 +65,8 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
-            sh 'docker rm -f myjenkinscontainer || true'
-            sh 'docker image prune -f || true'
+            sh "docker rm -f ${CONTAINER_NAME} || true"
+            sh "docker image prune -f || true"
         }
     }
 }
