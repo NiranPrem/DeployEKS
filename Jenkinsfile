@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/NiranPrem//DeployEKS.git'
+                git 'https://github.com/NiranPrem/DeployEKS.git'
             }
         }
         stage('Build Docker Image') {
